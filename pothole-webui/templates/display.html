@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Pothole Results</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .pothole-img {
+        max-height: 100px;
+        object-fit: cover;
+      }
+      #map {
+        width: 100%;
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container my-4">
+      <h1 class="mb-3">Pothole Detections</h1>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Pothole Image</th>
+              <th>Size (m&sup2;)</th>
+              <th>GPS Coordinates</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in records %}
+            <tr>
+              <td>
+                <img
+                  src="data:image/jpeg;base64,{{ r.image_base64 }}"
+                  class="pothole-img img-thumbnail"
+                  alt="pothole"
+                />
+              </td>
+              <td>{{ "%.4f"|format(r.area | float) }}</td>
+              <td>{{ r.latitude }}, {{ r.longitude }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="container-fluid px-0">
+      <div id="map"></div>
+    </div>
+
+    <script>
+      // Inject the records array directly as JS
+      const coords = {{ records | tojson }};
+      console.log("Loaded coords:", coords);
+
+      function initMap() {
+        // Center on first point or default
+        const center = coords.length
+          ? { lat: +coords[0].latitude, lng: +coords[0].longitude }
+          : { lat: 0, lng: 0 };
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: coords.length ? 14 : 2,
+          center,
+        });
+
+        coords.forEach((pt) => {
+          const marker = new google.maps.Marker({
+            position: { lat: +pt.latitude, lng: +pt.longitude },
+            map,
+          });
+          const info = new google.maps.InfoWindow({
+            content: `
+              <div style="text-align:center">
+                <img src="data:image/jpeg;base64,${pt.image_base64}"
+                     style="max-width:150px;"><br>
+                <strong>Size:</strong> ${(+pt.area).toFixed(4)} m²
+              </div>`,
+          });
+          marker.addListener("click", () => info.open(map, marker));
+        });
+      }
+    </script>
+
+    <!--
+      1) Use async + defer
+      2) Pass YOUR_API_KEY
+      3) The callback=initMap will fire after the API loads
+    -->
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBXCDc1FUVNwx77eZBkfSdHV1z7HPf0fzI&callback=initMap"
+    ></script>
+  </body>
+</html>
