@@ -7,11 +7,11 @@ This project uses machine vision and a YOLOv8 model accelerated by the Hailo-8 c
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Install Hailo Drivers & SDK on Raspberry Pi 5
 Follow the official guide to install the Hailo AI Software Suite for Raspberry Pi:
-👉 [Hailo-RPi5-Examples](https://github.com/hailo-ai/hailo-rpi5-examples)
+[Hailo-RPi5-Examples](https://github.com/hailo-ai/hailo-rpi5-examples)
 
 ### Clone the Hailo Example Repository
 ```bash
